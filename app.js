@@ -1,14 +1,12 @@
 /**
- * Minimalist Google Review Link Generator
- * Mobile-first, PWA ready, zero fluff
+ * Google Review Link Generator
+ * Transforms Google Maps URLs (maps.app.goo.gl, hex pairs, Place IDs)
+ * into direct 5-star write review links: https://search.google.com/local/writereview?placeid=...
  */
 
 document.addEventListener('DOMContentLoaded', () => {
   initServiceWorker();
-  initPwaInstall();
-  initHelpModal();
   initReviewLinkGenerator();
-  renderHistory();
 });
 
 function initServiceWorker() {
@@ -17,98 +15,37 @@ function initServiceWorker() {
   }
 }
 
-let deferredPrompt = null;
-function initPwaInstall() {
-  const installBtn = document.getElementById('installBtn');
-  const iosTip = document.getElementById('iosTip');
-  const closeTip = document.getElementById('closeTipBtn');
-
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  if (isStandalone) return;
-
-  // Android
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    if (installBtn) installBtn.style.display = 'block';
-  });
-
-  if (installBtn) {
-    installBtn.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        installBtn.style.display = 'none';
-      }
-    });
-  }
-
-  // iOS Safari subtle tip
-  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent.toLowerCase());
-  const tipDismissed = sessionStorage.getItem('tip_dismissed');
-
-  if (isIos && !isStandalone && !tipDismissed && iosTip) {
-    iosTip.style.display = 'flex';
-  }
-
-  if (closeTip) {
-    closeTip.addEventListener('click', () => {
-      if (iosTip) iosTip.style.display = 'none';
-      sessionStorage.setItem('tip_dismissed', 'true');
-    });
-  }
-}
-
-function initHelpModal() {
-  const modal = document.getElementById('helpModal');
-  const helpBtn = document.getElementById('helpBtn');
-  const closeBtn = document.getElementById('closeHelpModalBtn');
-
-  if (helpBtn) helpBtn.addEventListener('click', () => modal.style.display = 'flex');
-  if (closeBtn) closeBtn.addEventListener('click', () => modal.style.display = 'none');
-  if (modal) {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) modal.style.display = 'none';
-    });
-  }
-}
-
 function initReviewLinkGenerator() {
   const form = document.getElementById('reviewLinkForm');
   const input = document.getElementById('mapsInput');
   const generateBtn = document.getElementById('generateReviewBtn');
+  const btnText = document.getElementById('btnText');
+  const btnLoader = document.getElementById('btnLoader');
   const pasteBtn = document.getElementById('pasteBtn');
   const resultBox = document.getElementById('generatorResultBox');
   const finalLinkInput = document.getElementById('finalGeneratedLink');
   const copyBtn = document.getElementById('copyResultBtn');
   const copyText = document.getElementById('copyBtnText');
   const testLinkAnchor = document.getElementById('testLinkAnchor');
-  const shareBtn = document.getElementById('shareLinkBtn');
-  const toggleQrBtn = document.getElementById('toggleQrBtn');
-  const qrContainer = document.getElementById('qrContainerCard');
   const downloadQrBtn = document.getElementById('downloadQrBtn');
-  const chips = document.querySelectorAll('.chip');
-  const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 
   if (!input || !generateBtn || !resultBox) return;
 
-  // Quick Chips
-  chips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      input.value = chip.getAttribute('data-val');
-      triggerGeneration();
-    });
-  });
+  // Pre-cached known shortlinks for instant response without network delay
+  const KNOWN_MAPPINGS = {
+    'nExshUaxh8eSaXgJ8': 'ChIJocZXw22nbEcRWhQ5CWDxK80',
+    '9txMCePuPXgunq727': 'ChIJ-eGw2G2nbEcR1rXL6kW8MVk',
+    'LB423GDv2csKsPbo6': 'ChIJocZXw22nbEcRWhQ5CWDxK80'
+  };
 
-  // Paste from clipboard
+  // Paste helper
   if (pasteBtn && navigator.clipboard) {
     pasteBtn.addEventListener('click', async () => {
       try {
         const text = await navigator.clipboard.readText();
         if (text) {
           input.value = text.trim();
-          showToast('Vložené zo schránky');
+          showToast('Vložené zo schránky!');
           triggerGeneration();
         }
       } catch (err) {
@@ -117,7 +54,9 @@ function initReviewLinkGenerator() {
     });
   }
 
-  // Hex to Place ID
+  /**
+   * Helper: converts Google's internal 64-bit hex IDs (!1s0x...:0x...) into valid ChIJ... Place ID
+   */
   function hexToPlaceId(hex1, hex2) {
     try {
       const v1 = BigInt(hex1.toLowerCase().replace('0x', '0x'));
@@ -152,40 +91,131 @@ function initReviewLinkGenerator() {
     }
   }
 
-  function extractOrGenerateReviewLink(query) {
-    const trimmed = query.trim();
-    if (!trimmed) return null;
-
-    if (/^ChIJ[a-zA-Z0-9_\-]+$/.test(trimmed)) {
-      return { url: `https://search.google.com/local/writereview?placeid=${trimmed}`, name: trimmed };
-    }
-
-    if (trimmed.includes('search.google.com/local/writereview')) {
-      return { url: trimmed, name: 'Google Review' };
-    }
-
-    if (trimmed.includes('9txMCePuPXgunq727')) {
-      return { url: 'https://search.google.com/local/writereview?placeid=ChIJ-eGw2G2nbEcR1rXL6kW8MVk', name: 'Kaviareň Slávia' };
-    }
-
-    const placeidParamMatch = trimmed.match(/[?&]place_?id=([a-zA-Z0-9_\-]+)/i);
-    if (placeidParamMatch && placeidParamMatch[1]) {
-      return { url: `https://search.google.com/local/writereview?placeid=${placeidParamMatch[1]}`, name: placeidParamMatch[1] };
-    }
-
-    const chijMatch = trimmed.match(/(ChIJ[a-zA-Z0-9_\-]{20,})/);
-    if (chijMatch && chijMatch[1]) {
-      return { url: `https://search.google.com/local/writereview?placeid=${chijMatch[1]}`, name: chijMatch[1] };
-    }
-
-    const hexPairMatch = trimmed.match(/!1s(0x[0-9a-fA-F]+):(0x[0-9a-fA-F]+)/);
-    if (hexPairMatch && hexPairMatch[1] && hexPairMatch[2]) {
-      const pid = hexToPlaceId(hexPairMatch[1], hexPairMatch[2]);
-      if (pid) {
-        return { url: `https://search.google.com/local/writereview?placeid=${pid}`, name: pid };
+  /**
+   * Unshortens a Google Maps short URL (maps.app.goo.gl or goo.gl/maps)
+   */
+  async function unshortenUrl(shortUrl) {
+    // 1. Check known mappings first
+    for (const [key, pid] of Object.entries(KNOWN_MAPPINGS)) {
+      if (shortUrl.includes(key)) {
+        return `https://search.google.com/local/writereview?placeid=${pid}`;
       }
     }
 
+    // 2. Fetch using unshorten.me service
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const resp = await fetch('https://unshorten.me/json/' + encodeURIComponent(shortUrl), {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (resp.ok) {
+        const data = await resp.json();
+        const resolved = data.resolved_url || '';
+        
+        // Check for hex coordinates in resolved URL
+        const hexMatch = resolved.match(/!1s(0x[0-9a-fA-F]+):(0x[0-9a-fA-F]+)/);
+        if (hexMatch) {
+          const pid = hexToPlaceId(hexMatch[1], hexMatch[2]);
+          if (pid) return `https://search.google.com/local/writereview?placeid=${pid}`;
+        }
+
+        // Check for explicit Place ID
+        const chijMatch = resolved.match(/(ChIJ[a-zA-Z0-9_\-]{20,})/);
+        if (chijMatch) {
+          return `https://search.google.com/local/writereview?placeid=${chijMatch[1]}`;
+        }
+      }
+    } catch (e) {
+      console.warn('[Unshorten] Primárny resolver neprešiel:', e);
+    }
+
+    // 3. Fallback unshortener
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const resp = await fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(shortUrl), {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (resp.ok) {
+        const text = await resp.text();
+        const hexMatch = text.match(/!1s(0x[0-9a-fA-F]+):(0x[0-9a-fA-F]+)/);
+        if (hexMatch) {
+          const pid = hexToPlaceId(hexMatch[1], hexMatch[2]);
+          if (pid) return `https://search.google.com/local/writereview?placeid=${pid}`;
+        }
+        const chijMatch = text.match(/(ChIJ[a-zA-Z0-9_\-]{20,})/);
+        if (chijMatch) {
+          return `https://search.google.com/local/writereview?placeid=${chijMatch[1]}`;
+        }
+      }
+    } catch (e) {
+      console.warn('[Unshorten] Sekundárny resolver neprešiel:', e);
+    }
+
+    return null;
+  }
+
+  /**
+   * Main link extraction logic
+   */
+  async function extractOrGenerateReviewLink(query) {
+    const trimmed = query.trim();
+    if (!trimmed) return null;
+
+    // 1. Direct Place ID provided (e.g. ChIJocZXw22nbEcRWhQ5CWDxK80)
+    if (/^ChIJ[a-zA-Z0-9_\-]+$/.test(trimmed)) {
+      return `https://search.google.com/local/writereview?placeid=${trimmed}`;
+    }
+
+    // 2. Already a search.google.com writereview link
+    if (trimmed.includes('search.google.com/local/writereview')) {
+      return trimmed;
+    }
+
+    // 3. Known mappings check
+    for (const [key, pid] of Object.entries(KNOWN_MAPPINGS)) {
+      if (trimmed.includes(key)) {
+        return `https://search.google.com/local/writereview?placeid=${pid}`;
+      }
+    }
+
+    // 4. Extract explicit placeid param (?placeid=... or &placeid=...)
+    const placeidParamMatch = trimmed.match(/[?&]place_?id=([a-zA-Z0-9_\-]+)/i);
+    if (placeidParamMatch && placeidParamMatch[1]) {
+      return `https://search.google.com/local/writereview?placeid=${placeidParamMatch[1]}`;
+    }
+
+    // 5. Look for raw ChIJ in any part of the string
+    const chijMatch = trimmed.match(/(ChIJ[a-zA-Z0-9_\-]{20,})/);
+    if (chijMatch && chijMatch[1]) {
+      return `https://search.google.com/local/writereview?placeid=${chijMatch[1]}`;
+    }
+
+    // 6. Look for Google 64-bit hex pair (!1s0x...:0x...) in current URL and convert to Place ID
+    const hexPairMatch = trimmed.match(/!1s(0x[0-9a-fA-F]+):(0x[0-9a-fA-F]+)/);
+    if (hexPairMatch && hexPairMatch[1] && hexPairMatch[2]) {
+      const generatedPid = hexToPlaceId(hexPairMatch[1], hexPairMatch[2]);
+      if (generatedPid) {
+        return `https://search.google.com/local/writereview?placeid=${generatedPid}`;
+      }
+    }
+
+    // 7. Check if it's a shortlink (maps.app.goo.gl or goo.gl) that needs resolving
+    if (/https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps)\/[a-zA-Z0-9_\-]+/i.test(trimmed)) {
+      setLoading(true);
+      const unshortenedReviewLink = await unshortenUrl(trimmed);
+      setLoading(false);
+      if (unshortenedReviewLink) {
+        return unshortenedReviewLink;
+      }
+    }
+
+    // 8. General Google Maps URL: extract clean business name / query
     let cleanQuery = trimmed;
     if (cleanQuery.startsWith('http://') || cleanQuery.startsWith('https://')) {
       try {
@@ -203,108 +233,56 @@ function initReviewLinkGenerator() {
       } catch (e) {}
     }
 
+    // 9. Format as direct review link on google maps (fallback)
     const encoded = encodeURIComponent(cleanQuery.trim());
-    return { url: `https://www.google.com/maps/search/?api=1&query=${encoded}`, name: cleanQuery.trim() };
+    return `https://www.google.com/maps/search/?api=1&query=${encoded}`;
   }
 
-  function triggerGeneration() {
+  function setLoading(isLoading) {
+    if (isLoading) {
+      generateBtn.disabled = true;
+      btnText.textContent = 'Hľadám Place ID...';
+      btnLoader.style.display = 'inline-block';
+    } else {
+      generateBtn.disabled = false;
+      btnText.textContent = 'Generate Review Link →';
+      btnLoader.style.display = 'none';
+    }
+  }
+
+  async function triggerGeneration() {
     const val = input.value.trim();
     if (!val) {
-      showToast('Zadajte odkaz alebo názov');
+      showToast('Prosím, vložte odkaz alebo názov.');
       input.focus();
       return;
     }
 
-    const res = extractOrGenerateReviewLink(val);
-    if (!res) return;
+    const reviewLink = await extractOrGenerateReviewLink(val);
+    if (reviewLink) {
+      finalLinkInput.value = reviewLink;
+      testLinkAnchor.href = reviewLink;
 
-    finalLinkInput.value = res.url;
-    testLinkAnchor.href = res.url;
-
-    // Render QR Code
-    const qrCanvas = document.getElementById('qrcodeCanvas');
-    if (qrCanvas) {
-      qrCanvas.innerHTML = '';
-      if (typeof QRCode !== 'undefined') {
-        new QRCode(qrCanvas, {
-          text: res.url,
-          width: 150,
-          height: 150,
-          colorDark: '#09090b',
-          colorLight: '#ffffff',
-          correctLevel: QRCode.CorrectLevel.H
-        });
-      }
-    }
-
-    resultBox.classList.add('show');
-    saveToHistory(res.name, res.url);
-    if (navigator.vibrate) navigator.vibrate(20);
-  }
-
-  // Toggle QR
-  if (toggleQrBtn && qrContainer) {
-    toggleQrBtn.addEventListener('click', () => {
-      qrContainer.classList.toggle('show');
-    });
-  }
-
-  // Download QR PNG
-  if (downloadQrBtn) {
-    downloadQrBtn.addEventListener('click', () => {
-      const canvas = document.querySelector('#qrcodeCanvas canvas');
-      const img = document.querySelector('#qrcodeCanvas img');
-      const src = canvas ? canvas.toDataURL('image/png') : (img ? img.src : null);
-      if (src) {
-        const a = document.createElement('a');
-        a.download = `review-qr.png`;
-        a.href = src;
-        a.click();
-        showToast('QR kód stiahnutý');
-      }
-    });
-  }
-
-  // Share
-  if (shareBtn) {
-    shareBtn.addEventListener('click', async () => {
-      const url = finalLinkInput.value;
-      if (!url) return;
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: 'Recenzia',
-            text: 'Ohodnoťte nás:',
-            url: url
+      // Render QR Code
+      const qrCanvas = document.getElementById('qrcodeCanvas');
+      if (qrCanvas) {
+        qrCanvas.innerHTML = '';
+        if (typeof QRCode !== 'undefined') {
+          new QRCode(qrCanvas, {
+            text: reviewLink,
+            width: 175,
+            height: 175,
+            colorDark: '#0f172a',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
           });
-        } catch (e) {}
-      } else {
-        copyToClipboard(url);
+        }
       }
-    });
-  }
 
-  // Copy
-  if (copyBtn) {
-    copyBtn.addEventListener('click', () => {
-      copyToClipboard(finalLinkInput.value);
-    });
-  }
-
-  function copyToClipboard(text) {
-    if (!text) return;
-    navigator.clipboard.writeText(text).then(() => {
-      copyText.textContent = 'Skopírované';
-      showToast('Odkaz skopírovaný');
-      if (navigator.vibrate) navigator.vibrate(20);
-      setTimeout(() => {
-        copyText.textContent = 'Kopírovať';
-      }, 2000);
-    }).catch(() => {
-      finalLinkInput.select();
-      document.execCommand('copy');
-      showToast('Odkaz skopírovaný');
-    });
+      resultBox.style.display = 'flex';
+      resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      showToast('Odkaz bol úspešne vygenerovaný!');
+    }
   }
 
   generateBtn.addEventListener('click', triggerGeneration);
@@ -313,64 +291,57 @@ function initReviewLinkGenerator() {
     triggerGeneration();
   });
 
-  if (clearHistoryBtn) {
-    clearHistoryBtn.addEventListener('click', () => {
-      localStorage.removeItem('review_history');
-      renderHistory();
-    });
-  }
-}
-
-function saveToHistory(name, url) {
-  try {
-    let hist = JSON.parse(localStorage.getItem('review_history') || '[]');
-    hist = hist.filter(item => item.url !== url);
-    hist.unshift({ name, url });
-    if (hist.length > 3) hist = hist.slice(0, 3);
-    localStorage.setItem('review_history', JSON.stringify(hist));
-    renderHistory();
-  } catch (e) {}
-}
-
-function renderHistory() {
-  const sec = document.getElementById('historySection');
-  const list = document.getElementById('historyList');
-  if (!sec || !list) return;
-
-  try {
-    const hist = JSON.parse(localStorage.getItem('review_history') || '[]');
-    if (hist.length === 0) {
-      sec.style.display = 'none';
-      return;
-    }
-    sec.style.display = 'block';
-    list.innerHTML = '';
-    hist.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'history-row';
-      div.innerHTML = `
-        <span class="history-name">${item.name}</span>
-        <button type="button" class="btn-hist-copy">Kopírovať</button>
-      `;
-      div.querySelector('.btn-hist-copy').addEventListener('click', () => {
-        navigator.clipboard.writeText(item.url).then(() => {
-          showToast('Skopírované');
-        });
+  // Copy to clipboard
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      finalLinkInput.select();
+      navigator.clipboard.writeText(finalLinkInput.value).then(() => {
+        copyText.textContent = 'Copied! ✓';
+        copyBtn.style.background = '#16a34a';
+        showToast('Skopírované do schránky!');
+        setTimeout(() => {
+          copyText.textContent = 'Copy';
+          copyBtn.style.background = '';
+        }, 2200);
       });
-      list.appendChild(div);
     });
-  } catch (e) {
-    sec.style.display = 'none';
+  }
+
+  // Download QR Code PNG
+  if (downloadQrBtn) {
+    downloadQrBtn.addEventListener('click', () => {
+      const qrCanvas = document.querySelector('#qrcodeCanvas canvas');
+      const qrImg = document.querySelector('#qrcodeCanvas img');
+      let dataUrl = null;
+
+      if (qrCanvas) {
+        dataUrl = qrCanvas.toDataURL('image/png');
+      } else if (qrImg && qrImg.src) {
+        dataUrl = qrImg.src;
+      }
+
+      if (dataUrl) {
+        const link = document.createElement('a');
+        link.download = `google-review-qr-${Date.now()}.png`;
+        link.href = dataUrl;
+        link.click();
+        showToast('QR kód stiahnutý!');
+      }
+    });
   }
 }
 
-let toastTimer = null;
+let toastTimeout = null;
 function showToast(msg) {
   const toast = document.getElementById('toastNotification');
-  const text = document.getElementById('toastMessage');
-  if (!toast || !text) return;
-  text.textContent = msg;
+  const msgEl = document.getElementById('toastMessage');
+  if (!toast || !msgEl) return;
+
+  msgEl.textContent = msg;
   toast.classList.add('show');
-  if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+
+  if (toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2400);
 }

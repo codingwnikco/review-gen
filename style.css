@@ -1,33 +1,23 @@
 /* ==========================================================================
-   LIQUID GLASS MINIMALIST DESIGN - CENTERED MOBILE-FIRST
-   Author Signature: coded : Nicolas Mitter
+   EXACT SCREENSHOT REPLICA - CLEAN, MODERN, MOBILE & DESKTOP
+   Author: coded : Nicolas Mitter
    ========================================================================== */
 
 :root {
-  --bg-dark: #070709;
+  --bg-page: #f8fafc;
+  --bg-card: #ffffff;
   
-  /* Liquid Glass Palette */
-  --glass-bg: rgba(22, 22, 28, 0.62);
-  --glass-inner-well: rgba(12, 12, 16, 0.55);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-border-focus: rgba(255, 255, 255, 0.28);
-  --glass-highlight: inset 0 1px 1px rgba(255, 255, 255, 0.18);
-  --glass-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(255, 255, 255, 0.08) inset;
+  --primary-blue: #0038a8;
+  --primary-blue-hover: #002d87;
+  
+  --border-light: #e2e8f0;
+  --border-focus: #0038a8;
 
-  /* Typography Colors */
-  --text-main: #fcfcfd;
-  --text-sub: #a1a1aa;
-  --text-dim: #71717a;
-  --signature-color: rgba(255, 255, 255, 0.22);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
 
-  /* Controls */
-  --accent-btn-bg: #ffffff;
-  --accent-btn-text: #09090b;
-  --action-btn-bg: rgba(255, 255, 255, 0.07);
-  --action-btn-hover: rgba(255, 255, 255, 0.14);
-
-  --green-indicator: #22c55e;
-  --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 *, *::before, *::after {
@@ -38,13 +28,12 @@
 }
 
 html, body {
-  background-color: var(--bg-dark);
+  background-color: var(--bg-page);
   color: var(--text-main);
-  font-family: var(--font-system);
+  font-family: var(--font-stack);
   font-size: 16px;
   line-height: 1.5;
   min-height: 100vh;
-  min-height: -webkit-fill-available;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -52,488 +41,349 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: env(safe-area-inset-top) 1rem env(safe-area-inset-bottom) 1rem;
-  position: relative;
-  overflow-x: hidden;
+  padding: 2rem 1rem;
 }
 
-/* Ambient Backing Glow for Glass Refraction */
-.ambient-glow {
-  position: fixed;
-  width: 500px;
-  height: 500px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(66, 133, 244, 0.12) 0%, rgba(234, 67, 53, 0.05) 40%, transparent 70%);
-  filter: blur(80px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Main Centered Page Container */
-.page-container {
+/* Screen Layout & Centering */
+.screen-layout {
   width: 100%;
-  max-width: 440px;
+  max-width: 540px;
   margin: 0 auto;
-  position: relative;
-  z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
 
-/* Liquid Glass Card */
-.liquid-card {
-  width: 100%;
-  background: var(--glass-bg);
-  backdrop-filter: blur(32px) saturate(190%);
-  -webkit-backdrop-filter: blur(32px) saturate(190%);
-  border: 1px solid var(--glass-border);
-  border-radius: 24px;
-  box-shadow: var(--glass-shadow);
-  padding: 1.75rem 1.4rem;
-  transition: all 0.25s ease;
+/* Generator Card (Matches Screenshot) */
+.generator-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 18px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  padding: 2.25rem 2rem;
+  text-align: left;
 }
 
-/* Card Header */
-.card-top {
+@media (max-width: 600px) {
+  .generator-card {
+    padding: 1.75rem 1.25rem;
+    border-radius: 16px;
+  }
+}
+
+/* 5 Color Google Stars */
+.stars-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.4rem;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-}
-
-.stars-row {
-  display: inline-flex;
-  gap: 2.5px;
-  font-size: 1rem;
+  gap: 3px;
+  font-size: 1.35rem;
+  margin-bottom: 0.85rem;
   user-select: none;
 }
 
-.s-blue   { color: #4285F4; }
-.s-red    { color: #EA4335; }
-.s-yellow { color: #FBBC05; }
-.s-green  { color: #34A853; }
+.star-blue   { color: #4285F4; }
+.star-red    { color: #EA4335; }
+.star-yellow { color: #FBBC05; }
+.star-blue2  { color: #4285F4; }
+.star-green  { color: #34A853; }
 
-.brand-name {
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: -0.015em;
+/* Main Title & Subtitle */
+.main-title {
+  font-size: 1.45rem;
+  font-weight: 700;
   color: var(--text-main);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.65rem;
+  line-height: 1.3;
 }
 
-.btn-info {
-  background: var(--action-btn-bg);
-  border: 1px solid var(--glass-border);
-  color: var(--text-sub);
-  font-size: 0.85rem;
+.subtitle {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-bottom: 1.25rem;
+}
+
+/* Badges */
+.badges-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 0.82rem;
   font-weight: 500;
-  padding: 0.4rem 0.85rem;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btn-info:active {
-  background: var(--action-btn-hover);
-  color: var(--text-main);
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
 }
 
 /* Form Styles */
-.form-content {
+.form-body {
   display: flex;
   flex-direction: column;
-}
-
-.input-wrap {
-  margin-bottom: 0.75rem;
 }
 
 .input-label {
   display: block;
   font-size: 0.88rem;
-  font-weight: 500;
-  color: var(--text-sub);
-  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 0.55rem;
 }
 
-.input-field-group {
+.input-container {
   position: relative;
   display: flex;
   align-items: center;
+  margin-bottom: 1.15rem;
 }
 
-.liquid-input {
+.main-input {
   width: 100%;
-  background: var(--glass-inner-well);
-  border: 1px solid var(--glass-border);
-  border-radius: 14px;
+  background: #ffffff;
+  border: 1.5px solid var(--border-light);
+  border-radius: 10px;
   color: var(--text-main);
   font-family: inherit;
-  font-size: 1rem;
-  padding: 0.95rem 5.2rem 0.95rem 1rem;
+  font-size: 0.95rem;
+  padding: 0.9rem 5.5rem 0.9rem 1rem;
   outline: none;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.liquid-input:focus {
-  border-color: var(--glass-border-focus);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(255, 255, 255, 0.08);
+.main-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(0, 56, 168, 0.12);
 }
 
-.liquid-input::placeholder {
-  color: var(--text-dim);
-  font-size: 0.92rem;
+.main-input::placeholder {
+  color: var(--text-subtle);
+  font-size: 0.9rem;
 }
 
 .btn-paste {
   position: absolute;
-  right: 7px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid var(--glass-border);
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
   color: var(--text-main);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  padding: 0.55rem 0.85rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-paste:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+/* Big Blue Button (Generate Review Link →) */
+.btn-primary {
+  width: 100%;
+  background: var(--primary-blue);
+  color: #ffffff;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.95rem 1.25rem;
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.btn-paste:active {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* Quick Chips */
-.quick-chips {
   display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  margin-bottom: 1.25rem;
+  transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
-.chip {
-  background: transparent;
-  border: 1px solid var(--glass-border);
-  color: var(--text-dim);
-  font-size: 0.8rem;
+.btn-primary:hover {
+  background: var(--primary-blue-hover);
+}
+
+.btn-primary:active {
+  transform: scale(0.99);
+}
+
+/* Spinner */
+.loader-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Result Section (Matches Screenshot)
+   ========================================================================== */
+.result-section {
+  margin-top: 2rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.section-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-subtle);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.result-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.result-input {
+  flex: 1;
+  background: #f8fafc;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  color: var(--text-main);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+  padding: 0.75rem 0.85rem;
+  outline: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.btn-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.75rem 1.15rem;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease;
+}
+
+.btn-copy:hover {
+  background: #1e293b;
+}
+
+.btn-copy:active {
+  background: #16a34a;
+}
+
+.link-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.test-link {
+  font-size: 0.84rem;
+  color: #0045c7;
+  text-decoration: none;
   font-weight: 500;
-  padding: 0.35rem 0.75rem;
+}
+
+.test-link:hover {
+  text-decoration: underline;
+}
+
+/* QR Code Section */
+.qr-group {
+  align-items: center;
+  text-align: center;
+}
+
+.qr-preview-wrapper {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: inline-block;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+}
+
+#qrcodeCanvas {
+  display: flex;
+  justify-content: center;
+}
+
+#qrcodeCanvas img, #qrcodeCanvas canvas {
+  display: block;
+  max-width: 175px;
+  height: auto;
+}
+
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.5rem 0.95rem;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.chip:active {
-  color: var(--text-main);
-  border-color: var(--glass-border-focus);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-/* Primary Generate Button */
-.btn-generate {
-  width: 100%;
-  background: var(--accent-btn-bg);
-  color: var(--accent-btn-text);
-  border: none;
-  font-size: 1.05rem;
-  font-weight: 600;
-  padding: 0.95rem 1rem;
-  border-radius: 14px;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.15);
-  transition: transform 0.12s ease, opacity 0.12s ease;
-}
-
-.btn-generate:active {
-  transform: scale(0.985);
-  opacity: 0.9;
-}
-
-/* ==========================================================================
-   Result Box (Liquid Well)
-   ========================================================================== */
-.result-well {
-  display: none;
-  margin-top: 1.35rem;
-  padding: 1.25rem;
-  background: var(--glass-inner-well);
-  border: 1px solid var(--glass-border);
-  border-radius: 18px;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.35);
-  animation: fadeInWell 0.22s ease-out;
-}
-
-.result-well.show {
-  display: block;
-}
-
-@keyframes fadeInWell {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.result-status {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.85rem;
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--green-indicator);
-  border-radius: 50%;
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
-}
-
-.status-title {
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: var(--green-indicator);
-}
-
-.result-input-wrap {
-  margin-bottom: 0.95rem;
-}
-
-.readonly-input {
-  padding: 0.85rem;
-  font-family: monospace;
-  font-size: 0.88rem;
-  cursor: text;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-/* Actions Grid */
-.actions-grid {
-  display: grid;
-  grid-template-columns: 1.4fr 1.1fr 1fr 0.8fr;
-  gap: 0.45rem;
-}
-
-.btn-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  background: var(--action-btn-bg);
-  border: 1px solid var(--glass-border);
-  color: var(--text-main);
-  font-size: 0.88rem;
-  font-weight: 500;
-  padding: 0.75rem 0.5rem;
-  border-radius: 12px;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btn-action:active {
-  background: var(--action-btn-hover);
-  transform: scale(0.97);
-}
-
-.btn-copy {
-  background: var(--accent-btn-bg);
-  color: var(--accent-btn-text);
-  border: none;
-  font-weight: 600;
-}
-
-.btn-copy:active {
-  background: #e4e4e7;
-}
-
-/* QR Code Expansion */
-.qr-expansion {
-  display: none;
-  margin-top: 1.15rem;
-  padding-top: 1.15rem;
-  border-top: 1px solid var(--glass-border);
-  text-align: center;
-}
-
-.qr-expansion.show {
-  display: block;
-}
-
-#qrcodeCanvas {
-  display: inline-block;
-  background: #ffffff;
-  padding: 0.85rem;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-  margin-bottom: 0.85rem;
-}
-
-#qrcodeCanvas img, #qrcodeCanvas canvas {
-  display: block;
-  max-width: 170px;
-  height: auto;
-}
-
-.btn-download-qr {
-  display: block;
-  width: 100%;
-  background: var(--action-btn-bg);
-  border: 1px solid var(--glass-border);
-  color: var(--text-main);
-  font-size: 0.88rem;
-  font-weight: 500;
-  padding: 0.75rem;
-  border-radius: 12px;
-  cursor: pointer;
-}
-
-.btn-download-qr:active {
-  background: var(--action-btn-hover);
-}
-
-/* History */
-.history-wrap {
-  margin-top: 1.25rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--glass-border);
-}
-
-.history-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.82rem;
-  color: var(--text-dim);
-  margin-bottom: 0.5rem;
-}
-
-.btn-clear-hist {
-  background: none;
-  border: none;
-  color: var(--text-dim);
-  font-size: 0.78rem;
-  cursor: pointer;
-}
-
-.history-items {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-
-.history-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--glass-inner-well);
-  border: 1px solid var(--glass-border);
-  padding: 0.65rem 0.85rem;
-  border-radius: 10px;
-  font-size: 0.85rem;
-}
-
-.history-name {
-  color: var(--text-main);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 240px;
-}
-
-.btn-hist-copy {
-  background: var(--action-btn-bg);
-  border: 1px solid var(--glass-border);
-  color: var(--text-sub);
-  font-size: 0.78rem;
-  padding: 0.3rem 0.65rem;
-  border-radius: 6px;
-  cursor: pointer;
+.btn-download:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
 }
 
 /* ==========================================================================
    Author Signature (Subtle, larger font)
    ========================================================================== */
 .author-signature {
-  margin-top: 1.6rem;
+  margin-top: 1.75rem;
   font-size: 1.15rem;
   font-weight: 500;
-  letter-spacing: 0.08em;
-  color: var(--signature-color);
+  letter-spacing: 0.06em;
+  color: #94a3b8;
   text-align: center;
   user-select: none;
-  font-family: inherit;
-  transition: color 0.2s ease;
-}
-
-.author-signature:hover {
-  color: rgba(255, 255, 255, 0.45);
-}
-
-/* ==========================================================================
-   Modal Guide
-   ========================================================================== */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.25rem;
-  z-index: 1000;
-}
-
-.modal-card {
-  max-width: 400px;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.15rem;
-}
-
-.modal-header h3 {
-  font-size: 1.05rem;
-  font-weight: 600;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  color: var(--text-dim);
-  font-size: 1.6rem;
-  cursor: pointer;
-  line-height: 1;
-}
-
-.modal-text p {
-  font-size: 0.9rem;
-  color: var(--text-sub);
-  line-height: 1.55;
-  margin-bottom: 0.5rem;
-}
-
-.modal-subheading {
-  font-weight: 600;
-  color: var(--text-main) !important;
-}
-
-.modal-divider {
-  border-top: 1px solid var(--glass-border);
-  margin: 0.85rem 0;
 }
 
 /* Toast */
@@ -542,13 +392,13 @@ body {
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%) translateY(40px);
-  background: #ffffff;
-  color: #09090b;
+  background: #0f172a;
+  color: #ffffff;
   font-size: 0.88rem;
   font-weight: 600;
-  padding: 0.55rem 1.25rem;
+  padding: 0.6rem 1.35rem;
   border-radius: 9999px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   opacity: 0;
   pointer-events: none;
   transition: all 0.22s ease;
