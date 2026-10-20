@@ -1,11 +1,11 @@
 // Service Worker pre Google Review Link Generátor (Offline & PWA podpora)
-const CACHE_NAME = 'reviewgen-v1.0.0';
+const CACHE_NAME = 'reviewgen-v2.0.0';
 
 const ASSETS = [
   './',
-  './index.html',
-  './style.css',
-  './app.js',
+  './index.html?v=2',
+  './style.css?v=2',
+  './app.js?v=2',
   './qrcode.min.js',
   './manifest.webmanifest',
   './icons/icon-192.png',

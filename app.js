@@ -133,17 +133,18 @@ function initReviewLinkGenerator() {
 
       if (resp.ok) {
         const data = await resp.json();
-        const resolved = data.resolved_url || '';
+        const rawResolved = data.resolved_url || '';
+        const resolved = decodeURIComponent(rawResolved);
         
         // Check for hex coordinates in resolved URL
-        const hexMatch = resolved.match(/!1s(0x[0-9a-fA-F]+):(0x[0-9a-fA-F]+)/);
+        const hexMatch = resolved.match(/!1s(0x[0-9a-fA-F]+):(0x[0-9a-fA-F]+)/) || rawResolved.match(/!1s(0x[0-9a-fA-F]+):(0x[0-9a-fA-F]+)/);
         if (hexMatch) {
           const pid = hexToPlaceId(hexMatch[1], hexMatch[2]);
           if (pid) return `https://search.google.com/local/writereview?placeid=${pid}`;
         }
 
         // Check for explicit Place ID
-        const chijMatch = resolved.match(/(ChIJ[a-zA-Z0-9_\-]{20,})/);
+        const chijMatch = resolved.match(/(ChIJ[a-zA-Z0-9_\-]{20,})/) || rawResolved.match(/(ChIJ[a-zA-Z0-9_\-]{20,})/);
         if (chijMatch) {
           return `https://search.google.com/local/writereview?placeid=${chijMatch[1]}`;
         }
