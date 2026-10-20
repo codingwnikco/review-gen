@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   
   <title>Google Review Link Generator</title>
-  <meta name="description" content="Generátor priamych odkazov na Google recenzie pre mobilné telefóny.">
+  <meta name="description" content="Minimalistický generátor priamych odkazov na Google recenzie.">
   
   <!-- PWA & Mobile Web App -->
   <link rel="manifest" href="./manifest.webmanifest">
@@ -23,44 +23,39 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <div class="app-wrapper">
+  <!-- Ambient backdrop for liquid glass refraction -->
+  <div class="ambient-glow"></div>
+
+  <div class="page-container">
     
-    <!-- Top Bar -->
-    <header class="app-bar">
-      <div class="brand">
-        <span class="stars-mini">
-          <span class="s-blue">★</span>
-          <span class="s-red">★</span>
-          <span class="s-yellow">★</span>
-          <span class="s-blue">★</span>
-          <span class="s-green">★</span>
-        </span>
-        <span class="brand-text">Review Link</span>
-      </div>
-      <div class="app-bar-actions">
-        <button type="button" class="bar-btn" id="installBtn" style="display: none;">Inštalovať</button>
-        <button type="button" class="bar-btn" id="helpBtn">Info</button>
-      </div>
-    </header>
-
-    <!-- Main Mobile Content -->
-    <main class="content">
+    <!-- Liquid Glass Card Container -->
+    <main class="liquid-card">
       
-      <!-- Input Section -->
-      <section class="card">
-        <div class="card-header">
-          <h1 class="card-title">Google Review Generator</h1>
-          <p class="card-desc">Priamy odkaz na 5-hviezdičkové hodnotenie pre zákazníkov.</p>
+      <!-- Top Brand Header -->
+      <header class="card-top">
+        <div class="brand">
+          <div class="stars-row">
+            <span class="s-blue">★</span>
+            <span class="s-red">★</span>
+            <span class="s-yellow">★</span>
+            <span class="s-blue">★</span>
+            <span class="s-green">★</span>
+          </div>
+          <span class="brand-name">Google Review Link</span>
         </div>
+        <button type="button" class="btn-info" id="helpBtn">Info</button>
+      </header>
 
-        <form id="reviewLinkForm" onsubmit="return false;">
-          <label for="mapsInput" class="label">Odkaz z Google Máp alebo názov firmy</label>
-          <div class="input-group">
+      <!-- Input Form -->
+      <form id="reviewLinkForm" onsubmit="return false;" class="form-content">
+        <div class="input-wrap">
+          <label for="mapsInput" class="input-label">Odkaz z Google Máp alebo názov firmy</label>
+          <div class="input-field-group">
             <input 
               type="text" 
               id="mapsInput" 
-              placeholder="Vložte maps.app.goo.gl link alebo názov..." 
-              class="input-field"
+              placeholder="maps.app.goo.gl link alebo názov..." 
+              class="liquid-input"
               autocomplete="off"
               autocorrect="off"
               autocapitalize="off"
@@ -68,94 +63,93 @@
             >
             <button type="button" class="btn-paste" id="pasteBtn">Vložiť</button>
           </div>
+        </div>
 
-          <div class="quick-examples">
-            <button type="button" class="chip" data-val="Kaviareň Slávia Košice">Kaviareň Slávia</button>
-            <button type="button" class="chip" data-val="https://maps.app.goo.gl/9txMCePuPXgunq727">Maps odkaz</button>
-          </div>
+        <div class="quick-chips">
+          <button type="button" class="chip" data-val="Kaviareň Slávia Košice">Kaviareň Slávia</button>
+          <button type="button" class="chip" data-val="https://maps.app.goo.gl/9txMCePuPXgunq727">Maps odkaz</button>
+        </div>
 
-          <button type="submit" id="generateReviewBtn" class="btn-primary">
-            Vygenerovať odkaz
-          </button>
-        </form>
-      </section>
+        <button type="submit" id="generateReviewBtn" class="btn-generate">
+          Vygenerovať odkaz
+        </button>
+      </form>
 
-      <!-- Result Section -->
-      <section class="card result-card" id="generatorResultBox">
+      <!-- Result Box (Liquid Well) -->
+      <div class="result-well" id="generatorResultBox">
         <div class="result-status">
-          <span class="status-indicator"></span>
-          <span class="status-text" id="resultTypeBadge">Priamy 5★ formulár pripravený</span>
+          <span class="status-dot"></span>
+          <span class="status-title" id="resultTypeBadge">Priamy 5★ formulár pripravený</span>
         </div>
 
         <div class="result-input-wrap">
-          <input type="text" id="finalGeneratedLink" readonly class="input-readonly">
+          <input type="text" id="finalGeneratedLink" readonly class="liquid-input readonly-input">
         </div>
 
-        <div class="actions-row">
-          <button type="button" class="btn-action primary" id="copyResultBtn">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <div class="actions-grid">
+          <button type="button" class="btn-action btn-copy" id="copyResultBtn">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
             <span id="copyBtnText">Kopírovať</span>
           </button>
           <a href="#" id="testLinkAnchor" target="_blank" rel="noopener noreferrer" class="btn-action">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
             <span>Otestovať</span>
           </a>
           <button type="button" class="btn-action" id="shareLinkBtn">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
             <span>Zdieľať</span>
           </button>
           <button type="button" class="btn-action" id="toggleQrBtn">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>QR</span>
           </button>
         </div>
 
-        <!-- Inline QR View -->
-        <div class="qr-box" id="qrContainerCard">
+        <!-- QR Code Expansion -->
+        <div class="qr-expansion" id="qrContainerCard">
           <div id="qrcodeCanvas"></div>
-          <button type="button" class="btn-download-qr" id="downloadQrBtn">Stiahnuť QR obrázok</button>
+          <button type="button" class="btn-download-qr" id="downloadQrBtn">Stiahnuť QR obrázok (PNG)</button>
         </div>
-      </section>
+      </div>
 
-      <!-- History (Minimal) -->
-      <section class="history-block" id="historySection" style="display: none;">
-        <div class="history-header">
-          <span class="history-title">Posledné odkazy</span>
-          <button type="button" class="btn-text-clear" id="clearHistoryBtn">Vymazať</button>
+      <!-- History (Minimalist) -->
+      <div class="history-wrap" id="historySection" style="display: none;">
+        <div class="history-top">
+          <span>Posledné</span>
+          <button type="button" class="btn-clear-hist" id="clearHistoryBtn">Vymazať</button>
         </div>
         <div class="history-items" id="historyList"></div>
-      </section>
+      </div>
 
     </main>
 
-    <!-- iOS Home Screen Helper (Subtle bottom tip) -->
-    <div class="mobile-tip" id="iosTip" style="display: none;">
-      <span>Pre pridanie na plochu: ťuknite na <strong>Zdieľať</strong> a <strong>Pridať na plochu</strong>.</span>
-      <button type="button" class="tip-close" id="closeTipBtn">&times;</button>
-    </div>
+    <!-- Subtle, larger signature -->
+    <footer class="author-signature">
+      coded : Nicolas Mitter
+    </footer>
 
-    <!-- Minimal Info Modal -->
-    <div class="modal" id="helpModal" style="display: none;">
-      <div class="modal-body">
-        <div class="modal-top">
-          <h3>Pridanie na plochu telefónu</h3>
-          <button type="button" class="modal-close" id="closeHelpModalBtn">&times;</button>
-        </div>
-        <div class="modal-instructions">
-          <p><strong>iOS (Safari):</strong></p>
-          <p>1. Otvorte stránku v Safari.<br>2. Ťuknite na ikonu Zdieľať (štvorec so šípkou).<br>3. Zvoľte „Pridať na plochu”.</p>
-          <hr class="divider">
-          <p><strong>Android (Chrome):</strong></p>
-          <p>1. Otvorte stránku v Chrome.<br>2. V ponuke (3 bodky) zvoľte „Inštalovať aplikáciu” alebo „Pridať na plochu”.</p>
-        </div>
+  </div>
+
+  <!-- Minimal Info Modal -->
+  <div class="modal" id="helpModal" style="display: none;">
+    <div class="modal-card liquid-card">
+      <div class="modal-header">
+        <h3>Pridanie na plochu telefónu</h3>
+        <button type="button" class="modal-close" id="closeHelpModalBtn">&times;</button>
+      </div>
+      <div class="modal-text">
+        <p class="modal-subheading">iPhone (Safari):</p>
+        <p>1. Otvorte stránku v Safari.<br>2. Ťuknite dole na ikonu <strong>Zdieľať</strong> (štvorec so šípkou).<br>3. Zvoľte <strong>„Pridať na plochu”</strong>.</p>
+        <div class="modal-divider"></div>
+        <p class="modal-subheading">Android (Chrome):</p>
+        <p>1. Otvorte stránku v Chrome.<br>2. V ponuke (3 bodky) zvoľte <strong>„Inštalovať aplikáciu”</strong> alebo <strong>„Pridať na plochu”</strong>.</p>
       </div>
     </div>
+  </div>
 
-    <!-- Minimal Toast -->
-    <div class="toast" id="toastNotification">
-      <span id="toastMessage">Skopírované</span>
-    </div>
-
+  <!-- Toast -->
+  <div class="toast" id="toastNotification">
+    <span id="toastMessage">Skopírované</span>
   </div>
 
   <script src="./qrcode.min.js"></script>
