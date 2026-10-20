@@ -18,10 +18,11 @@ function initServiceWorker() {
 function initReviewLinkGenerator() {
   const form = document.getElementById('reviewLinkForm');
   const input = document.getElementById('mapsInput');
+  const clearBtn = document.getElementById('clearBtn');
+  const pasteBtn = document.getElementById('pasteBtn');
   const generateBtn = document.getElementById('generateReviewBtn');
   const btnText = document.getElementById('btnText');
   const btnLoader = document.getElementById('btnLoader');
-  const pasteBtn = document.getElementById('pasteBtn');
   const resultBox = document.getElementById('generatorResultBox');
   const finalLinkInput = document.getElementById('finalGeneratedLink');
   const copyBtn = document.getElementById('copyResultBtn');
@@ -38,6 +39,24 @@ function initReviewLinkGenerator() {
     'LB423GDv2csKsPbo6': 'ChIJocZXw22nbEcRWhQ5CWDxK80'
   };
 
+  // Toggle clear button on input change
+  function updateClearButtonState() {
+    if (clearBtn) {
+      clearBtn.style.display = input.value.trim().length > 0 ? 'inline-flex' : 'none';
+    }
+  }
+
+  input.addEventListener('input', updateClearButtonState);
+
+  // Clear button click
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      input.value = '';
+      clearBtn.style.display = 'none';
+      input.focus();
+    });
+  }
+
   // Paste helper
   if (pasteBtn && navigator.clipboard) {
     pasteBtn.addEventListener('click', async () => {
@@ -45,6 +64,7 @@ function initReviewLinkGenerator() {
         const text = await navigator.clipboard.readText();
         if (text) {
           input.value = text.trim();
+          updateClearButtonState();
           showToast('Vložené zo schránky!');
           triggerGeneration();
         }
