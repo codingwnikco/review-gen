@@ -1,15 +1,15 @@
 {
-  "name": "Google Review Link Generátor",
-  "short_name": "ReviewGen",
-  "description": "Bezplatný generátor priamych odkazov na Google recenzie a QR kódov pre firmy a prevádzky.",
+  "name": "Google Review Link",
+  "short_name": "Review Link",
+  "description": "Generátor priamych odkazov na Google recenzie.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#0b0f19",
-  "theme_color": "#0b0f19",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
   "lang": "sk",
-  "categories": ["business", "utilities", "productivity"],
+  "categories": ["utilities"],
   "icons": [
     {
       "src": "./icons/icon-192.png",
