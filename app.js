@@ -122,60 +122,48 @@ function initReviewLinkGenerator() {
       }
     }
 
-    // 2. Fetch using unshorten.me service
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
-      const resp = await fetch('https://unshorten.me/json/' + encodeURIComponent(shortUrl), {
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
+    // 2. Multi-proxy resolver (handles mobile CORS restrictions reliably)
+    const proxies = [
+      (u) => 'https://unshorten.me/json/' + encodeURIComponent(u),
+      (u) => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u),
+      (u) => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u)
+    ];
 
-      if (resp.ok) {
-        const data = await resp.json();
-        const rawResolved = data.resolved_url || '';
-        const resolved = decodeURIComponent(rawResolved);
-        
-        // Check for hex coordinates in resolved URL
-        const hexMatch = resolved.match(/!1s(0x[0-9a-fA-F]+):(0x[0-9a-fA-F]+)/) || rawResolved.match(/!1s(0x[0-9a-fA-F]+):(0x[0-9a-fA-F]+)/);
-        if (hexMatch) {
-          const pid = hexToPlaceId(hexMatch[1], hexMatch[2]);
-          if (pid) return `https://search.google.com/local/writereview?placeid=${pid}`;
-        }
+    for (const makeProxy of proxies) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const resp = await fetch(makeProxy(shortUrl), { signal: controller.signal });
+        clearTimeout(timeoutId);
 
-        // Check for explicit Place ID
-        const chijMatch = resolved.match(/(ChIJ[a-zA-Z0-9_\-]{20,})/) || rawResolved.match(/(ChIJ[a-zA-Z0-9_\-]{20,})/);
-        if (chijMatch) {
-          return `https://search.google.com/local/writereview?placeid=${chijMatch[1]}`;
+        if (resp.ok) {
+          const contentType = resp.headers.get('content-type') || '';
+          let text = '';
+          if (contentType.includes('application/json')) {
+            const data = await resp.json();
+            text = (data.resolved_url || data.contents || JSON.stringify(data));
+          } else {
+            text = await resp.text();
+          }
+
+          const decoded = decodeURIComponent(text);
+
+          // Check for hex coordinates in resolved URL or body
+          const hexMatch = decoded.match(/!1s(0x[0-9a-fA-F]+):(0x[0-9a-fA-F]+)/) || text.match(/!1s(0x[0-9a-fA-F]+):(0x[0-9a-fA-F]+)/);
+          if (hexMatch) {
+            const pid = hexToPlaceId(hexMatch[1], hexMatch[2]);
+            if (pid) return `https://search.google.com/local/writereview?placeid=${pid}`;
+          }
+
+          // Check for explicit Place ID (ChIJ...)
+          const chijMatch = decoded.match(/(ChIJ[a-zA-Z0-9_\-]{20,})/) || text.match(/(ChIJ[a-zA-Z0-9_\-]{20,})/);
+          if (chijMatch) {
+            return `https://search.google.com/local/writereview?placeid=${chijMatch[1]}`;
+          }
         }
+      } catch (err) {
+        // try next proxy
       }
-    } catch (e) {
-      console.warn('[Unshorten] Primárny resolver neprešiel:', e);
-    }
-
-    // 3. Fallback unshortener
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
-      const resp = await fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(shortUrl), {
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-
-      if (resp.ok) {
-        const text = await resp.text();
-        const hexMatch = text.match(/!1s(0x[0-9a-fA-F]+):(0x[0-9a-fA-F]+)/);
-        if (hexMatch) {
-          const pid = hexToPlaceId(hexMatch[1], hexMatch[2]);
-          if (pid) return `https://search.google.com/local/writereview?placeid=${pid}`;
-        }
-        const chijMatch = text.match(/(ChIJ[a-zA-Z0-9_\-]{20,})/);
-        if (chijMatch) {
-          return `https://search.google.com/local/writereview?placeid=${chijMatch[1]}`;
-        }
-      }
-    } catch (e) {
-      console.warn('[Unshorten] Sekundárny resolver neprešiel:', e);
     }
 
     return null;
@@ -234,6 +222,8 @@ function initReviewLinkGenerator() {
       if (unshortenedReviewLink) {
         return unshortenedReviewLink;
       }
+      showToast('⚠️ Nepodarilo sa rozbaliť skrátený odkaz. Skontrolujte pripojenie.');
+      return null;
     }
 
     // 8. General Google Maps URL: extract clean business name / query
